@@ -1,39 +1,55 @@
 package com.TraceForge.AI.Service;
 
-import lombok.NoArgsConstructor;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.RevTree;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-
+import java.nio.charset.StandardCharsets;
 
 @Service
-@NoArgsConstructor
 public class GitService {
-    Git git;
+    private final Git git;
 
-    {
-        try {
-            git = Git.open(new File("/home/anishbellamkonda/Downloads/Expense_tracker/.git"));
+    public GitService(File filepath) throws IOException {
+        this.git = Git.open(filepath);
+    }
+
+    public void printCommits() throws GitAPIException {
+        Iterable<RevCommit> commits = git.log().call();
+        GeminiService geminiService = new GeminiService();
+        String output_md = "";
+
+        for (RevCommit commit : commits) {
+            String codeSnapshot = readCommitCode(commit.getTree());
+            String commitmsg = commit.name() + commit.getShortMessage() + codeSnapshot;
+            output_md = geminiService.generateMarkdown(commitmsg);
+        }
+
+        System.out.println(output_md);
+    }
+
+    private String readCommitCode(RevTree tree) {
+        StringBuilder codeSnapshot = new StringBuilder();
+
+        try (TreeWalk treeWalk = new TreeWalk(git.getRepository())) {
+            treeWalk.addTree(tree);
+            treeWalk.setRecursive(true);
+
+            while (treeWalk.next()) {
+                ObjectId objectId = treeWalk.getObjectId(0);
+                byte[] bytes = git.getRepository().open(objectId).getBytes();
+                codeSnapshot.append(new String(bytes, StandardCharsets.UTF_8));
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-    public void oldCommits() throws GitAPIException {
-        Iterable<RevCommit> commits = git.log().call();
-        for (RevCommit commit : commits) {
-            System.out.println(commit.getName());
-            System.out.println(commit.getShortMessage());
-            System.out.println(commit.getAuthorIdent().getName());
-            System.out.println(commit.getAuthorIdent().getEmailAddress());
-        }
 
+        return codeSnapshot.toString();
     }
-
 }
