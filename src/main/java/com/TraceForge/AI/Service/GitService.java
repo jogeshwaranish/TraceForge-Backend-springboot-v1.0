@@ -8,7 +8,9 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -21,6 +23,7 @@ public class GitService {
     }
 
     public void printCommits() throws GitAPIException {
+        String filename = "generated_readme.md";
         Iterable<RevCommit> commits = git.log().call();
         GeminiService geminiService = new GeminiService();
         String output_md = "";
@@ -30,8 +33,14 @@ public class GitService {
             String commitmsg = commit.name() + commit.getShortMessage() + codeSnapshot;
             output_md = geminiService.generateMarkdown(commitmsg);
         }
-
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            writer.write(output_md);
+            System.out.println("Successfully wrote to the file: " + filename);
+        } catch (IOException e) {
+            System.err.println("Error writing to file: " + e.getMessage());
+        }
         System.out.println(output_md);
+
     }
 
     private String readCommitCode(RevTree tree) {
