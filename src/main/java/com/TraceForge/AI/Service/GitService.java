@@ -1,5 +1,6 @@
 package com.TraceForge.AI.Service;
 
+import lombok.NoArgsConstructor;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
@@ -14,15 +15,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-@Service
+
 public class GitService {
     private final Git git;
 
-    public GitService(File filepath) throws IOException {
-        this.git = Git.open(filepath);
+    private final File repoDir;
+
+    public GitService(File repoDir) throws IOException {
+        this.git = Git.open(repoDir);
+        this.repoDir = repoDir;
     }
 
-    public void printCommits() throws GitAPIException {
+    public String printCommits() throws GitAPIException {
         String filename = "generated_readme.md";
         Iterable<RevCommit> commits = git.log().call();
         GeminiService geminiService = new GeminiService();
@@ -41,6 +45,7 @@ public class GitService {
         }
         System.out.println(output_md);
 
+        return output_md;
     }
 
     private String readCommitCode(RevTree tree) {

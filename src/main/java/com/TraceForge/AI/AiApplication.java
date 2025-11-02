@@ -12,9 +12,9 @@ import java.io.IOException;
 public class AiApplication {
 
 	public static void main(String[] args) throws GitAPIException, IOException {
-//		SpringApplication.run(AiApplication.class, args);
-        GitService gitService = new GitService(new File("/home/anishbellamkonda/Downloads/Expense_tracker/.git"));
-        gitService.printCommits();
+		SpringApplication.run(AiApplication.class, args);
+//        GitService gitService = new GitService(new File("/home/anishbellamkonda/Downloads/Expense_tracker/.git"));
+//        gitService.printCommits();
 	}
 
 }
