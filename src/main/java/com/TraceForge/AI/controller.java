@@ -5,14 +5,12 @@ import com.TraceForge.AI.Service.GitService;
 import com.TraceForge.AI.Service.repositoryService;
 import com.TraceForge.AI.model.document;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.api.client.json.Json;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.List;
 
 @RestController
@@ -29,7 +27,9 @@ public class controller {
             System.out.println(path);
             System.out.println("body exists and works with file");
             GitService gitService = new GitService(new File(path));
-            return gitService.GenerateMarkdown();
+            String output = gitService.GenerateMarkdown();
+            repoService.SaveRepo(new document(gitService.getRepoName(),gitService.getFilePath(),output));
+            return output;
         } catch(Exception e){
             System.out.println(e.getMessage());
             System.out.println("body not working");
