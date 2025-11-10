@@ -1,12 +1,14 @@
 package com.TraceForge.AI.Service;
 
-import lombok.NoArgsConstructor;
+import com.TraceForge.AI.model.document;
+import com.TraceForge.AI.repo.repository;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedWriter;
@@ -15,18 +17,25 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-
+@Service
 public class GitService {
-    private final Git git;
+    private Git git;
+    private File repoDir;
 
-    private final File repoDir;
+    @Autowired
+    private repository repo;
 
-    public GitService(File repoDir) throws IOException {
-        this.git = Git.open(repoDir);
-        this.repoDir = repoDir;
+    public GitService(File file) {
+        // no-arg constructor for Spring
+        // optionally, you can initialize repoDir later
     }
 
-    public String printCommits() throws GitAPIException {
+    public void init(File repoDir) throws IOException {
+        this.repoDir = repoDir;
+        this.git = Git.open(repoDir);
+    }
+
+    public String GenerateMarkdown() throws GitAPIException {
         String filename = "generated_readme.md";
         Iterable<RevCommit> commits = git.log().call();
         GeminiService geminiService = new GeminiService();
@@ -44,7 +53,7 @@ public class GitService {
             System.err.println("Error writing to file: " + e.getMessage());
         }
         System.out.println(output_md);
-
+        repo.save(new document(getRepoName(), getFilePath(), output_md));
         return output_md;
     }
 
@@ -65,5 +74,13 @@ public class GitService {
         }
 
         return codeSnapshot.toString();
+    }
+
+    private String getFilePath() {
+        return repoDir.getAbsolutePath() + File.separator + "generated_readme.md";
+    }
+
+    private String getRepoName() {
+        return repoDir.getName();
     }
 }
