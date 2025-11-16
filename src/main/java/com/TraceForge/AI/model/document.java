@@ -2,19 +2,26 @@ package com.TraceForge.AI.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.redis.core.RedisHash;
+
+import java.io.Serializable;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-public class document {
+@RedisHash("Markdowns")
+public class document implements Serializable {
 
     @Id
+    @Getter
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
+    @Getter
     private String repoName;
+    @Getter
     private String file_path;
     @Lob
+    @Getter
     private String markdown;
 
     public document(String repoName, String filePath, String outputMd) {
@@ -23,5 +30,13 @@ public class document {
         this.markdown = outputMd;
     }
 
-    // getters and setters (Lombok already generates them)
+    @Override
+    public String toString() {
+        return  "id=" + id +
+                ", repoName='" + repoName + '\'' +
+                ", file_path='" + file_path + '\'' +
+                ", markdown='" + markdown + '\'';
+    }
+
+// getters and setters (Lombok already generates them)
 }
