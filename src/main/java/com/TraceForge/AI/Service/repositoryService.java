@@ -2,6 +2,7 @@ package com.TraceForge.AI.Service;
 
 import com.TraceForge.AI.model.document;
 import com.TraceForge.AI.repo.DocumentRepository;
+import com.google.api.client.json.Json;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,16 +20,12 @@ public class repositoryService {
         return "Saved the file into repo";
     }
 
-    public List<String> getFiles() {
-        List<String> list_of_repo_names = new ArrayList<>();
-        for (document doc : repo.findAll()) {
-            list_of_repo_names.add(doc.getRepoName());
-        }
-        return list_of_repo_names;
+    public List<document> getFiles() {
+        return (List<document>) repo.findAll();
     }
 
     public String getFile(int id) {
-        return repo.findById(id).toString();
+        return repo.findById(id).get().getMarkdown();
     }
 
     public String getFilePath(String repo_name) {

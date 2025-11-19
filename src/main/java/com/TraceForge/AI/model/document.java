@@ -1,13 +1,12 @@
 package com.TraceForge.AI.model;
-
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.redis.core.RedisHash;
-
 import java.io.Serializable;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @RedisHash("Markdowns")
 public class document implements Serializable {
 
@@ -38,5 +37,5 @@ public class document implements Serializable {
                 ", markdown='" + markdown + '\'';
     }
 
-// getters and setters (Lombok already generates them)
+    // getters and setters (Lombok already generates them)
 }

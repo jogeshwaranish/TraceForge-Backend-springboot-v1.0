@@ -15,7 +15,8 @@ public class GeminiService {
         String apikey = dotenv.get("GOOGLE_API_KEY");
         Client client = Client.builder().apiKey(apikey).build();
         String originalMarkdown = "";
-        String modified = "In the context of making documentation files, make or modify the existing markdown based on the commit message in the following: " + commitmsg + "and the previous markdown whihc could be empty" + originalMarkdown + "lastly, only return markdown, no other words";
+        String context = "In the context of making documentation, make or modify the exisitng markdown based on the git hub repository information given to you in the following: ";
+        String modified = context + commitmsg + "and the previous markdown which could be empty" + originalMarkdown + "lastly, only return markdown, no other words";
         GenerateContentResponse response =
                 client.models.generateContent(
                         "gemini-2.5-flash",

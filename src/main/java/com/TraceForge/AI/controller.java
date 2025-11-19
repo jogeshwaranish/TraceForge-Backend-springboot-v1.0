@@ -41,14 +41,14 @@ public class controller {
         return "";
     }
 
-    @GetMapping("/getMarkDown")
-    public String getMarkDowns(@RequestHeader("id") int identity) throws GitAPIException, IOException {
-        return repoService.getFile(-2043613740);
+    @PostMapping("/getMarkDown")
+    public String getMarkDowns(@RequestHeader("identity") int identity) throws GitAPIException, IOException {
+        return repoService.getFile(identity);
     }
 
     @GetMapping("/getList")
-    public String getList() throws GitAPIException, IOException {
-        return repoService.getFiles().toString();
+    public List<document> getList() throws GitAPIException, IOException {
+        return repoService.getFiles();
     }
 
     @GetMapping("/getPath")
